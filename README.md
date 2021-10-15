@@ -10,3 +10,7 @@ npm install -g @vue/cli
 
 # 4. Start the project
 node run serve
+
+# 5. Axios is install to serve api
+
+# 6. Basic api request is listed in src/services/api.vue 
