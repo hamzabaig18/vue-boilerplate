@@ -9,7 +9,6 @@
  export default{
 
     async getRequestMethod(endpoint) {
-        debugger
         return await apiClient.get(endpoint)
         .then(response => {
 			return response.data

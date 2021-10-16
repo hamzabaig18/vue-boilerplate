@@ -1,31 +1,32 @@
 <template>
-  <div class="home">
-    <div @click="goToDetail" v-if="isDataAdded" class="d-flex justify-content-center flex-column" :class="getAmPm ? 'light-theme' : 'dark-theme'">
-        <label class="font-weight-bold">Search country</label>
-        <input type="text" v-model="currentCity" @keyup.enter="getWeatherData">
-        <div class="card weather mt-3">
-          <h1>{{ info.name }}, {{ info.sys.country }}</h1>
-          <h2>Temp: {{info.main.temp.toFixed()}} deg</h2>
-          <h2><span>Wind speed:</span> {{ info.wind.speed }}mph</h2>
-        </div>
-	  </div>
-    <h1 v-else>No city found</h1>
+  <div class="weather-list">
+    <div class="container">
+      <div v-if="isData">
+        <weatherItem v-bind:multiCityData="multiCityData"/>
+	    </div>
+      <h1 v-else>No city found</h1>
+    </div>
   </div>
 </template>
 
 <script>
 import api from '@/services/api.vue';
+import cities from '@/assets/cities.json';
+import weatherItem from '@/components/weather-item.vue';
 
 export default {
   name: 'Home',
-
+  components: {
+      weatherItem
+  },
   data () {
     return {
       apiUrl: process.env.VUE_APP_WEATHER_URL,
       apiKey: process.env.VUE_APP_WEATHER_API_KEY,
-      isDataAdded: false,
+      isData: false,
       info: null,
-      currentCity: ['Lahore'],
+      currentCity: cities,
+      multiCityData:[],
       getAmPm: false
     }
   },
@@ -34,52 +35,29 @@ export default {
   },
   mounted () {
     this.getWeatherData();
-    this.getTimeDuration();
   },
   methods: {
-    async getWeatherData() {
-      this.info =  await api.getRequestMethod(this.apiUrl + '?q='+ this.currentCity + '&&units=metric&appid='+ this.apiKey);
-      if(this.info) {
-        this.isDataAdded = true;
+     async getWeatherData() {
+      for (var i=0; i < this.currentCity.length; i++) {
+        const response = await api.getRequestMethod(this.apiUrl + '?q='+ this.currentCity[i].name + '&&units=metric&appid='+ this.apiKey)
+        this.multiCityData.push(await response);
+      }
+      if(this.multiCityData) {
+        this.isData = true;
       }
     },
-    
-    getTimeDuration() {
-      let date = new Date();
-      let hours = date.getHours();
-      let minutes = date.getMinutes();
-      let ampm = hours >= 12 ? false : true;
-      this.getAmPm = ampm;
-    },
-    goToDetail() {
-      
-    }
   },
 }
 </script>
 <style scoped lang="scss">
-  .home {
-    max-width: 350px;
-    margin: 0 auto;
-    padding-top: 30px
+  .weather-list {
+    padding: 30px 0;
   }
-  .home input {
+  .weather-list input {
     border:none;
     background: #eee;
     height: 40px;
     border-radius: 4px;
     padding: 0 20px;
-  }
-  .dark-theme .weather{
-    background-image: url("../assets/images/night.png");
-  }
-  .light-theme .weather{
-    background-image: url("../assets/images/morning.png");
-  }
-  .weather {
-    padding: 30px 15px;
-    background-repeat: no-repeat;
-    background-position: top right;
-    background-size: 70px;
   }
 </style>

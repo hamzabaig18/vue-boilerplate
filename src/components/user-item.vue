@@ -1,7 +1,7 @@
 <template>
     <div v-if="isData" class="row">
         <div v-for="user in userlist" :key="user.id" class="col-4" >
-        <div class="card mt-5">
+            <div class="card mt-5">
                 <img :src="user.avatar" alt="">
                 <div class="card-body text-center">
                     <h5 class="card-title">{{user.first_name + user.last_name}}</h5>
